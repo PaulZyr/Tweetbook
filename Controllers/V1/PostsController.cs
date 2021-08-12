@@ -23,7 +23,6 @@ namespace Tweetbook.Controllers.V1
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public IActionResult GetAll()
         {
-
             return Ok(_postService.GetPosts());
         }
 
@@ -31,12 +30,10 @@ namespace Tweetbook.Controllers.V1
         public IActionResult Get([FromRoute] Guid postId)
         {
             var post = _postService.GetPostById(postId);
-
             if(post == null)
             {
                 return NotFound();
             }
-
             return Ok(post);
         }
 
@@ -44,12 +41,21 @@ namespace Tweetbook.Controllers.V1
         public IActionResult Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
         {
             var post = new Post { Id = postId, Name = request.Name };
-
             var updated = _postService.UpdatePost(post);
-
             if (updated)
             {
                 return Ok(post);
+            }
+            return NotFound();
+        }
+
+        [HttpDelete(ApiRoutes.Posts.Delete)]
+        public IActionResult Delete([FromRoute] Guid postId)
+        {
+            var deleted = _postService.DeletePost(postId);
+            if (deleted)
+            {
+                return NoContent();
             }
             return NotFound();
         }
@@ -58,7 +64,6 @@ namespace Tweetbook.Controllers.V1
         public IActionResult Create([FromBody] CreatePostRequest postRequest)
         {
             var post = new Post { Id = postRequest.Id };
-
             if (post.Id != Guid.Empty) // ??? ==
             {
                 post.Id = Guid.NewGuid();
