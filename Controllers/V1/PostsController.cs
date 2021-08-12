@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tweetbook.Contracts;
+using Tweetbook.Contracts.Requests;
+using Tweetbook.Contracts.Responses;
 using Tweetbook.Domain;
 
 namespace Tweetbook.Controllers.V1
@@ -25,6 +27,28 @@ namespace Tweetbook.Controllers.V1
         public IActionResult GetAll()
         {
             return Ok(_posts);
+        }
+        //[HttpGet(ApiRoutes.Posts.Get)]
+        //public IActionResult Get()
+        //{
+        //    return Ok(_posts);
+        //}
+
+        [HttpPost(ApiRoutes.Posts.Create)]
+        public IActionResult Create([FromBody] CreatePostRequest postRequest)
+        {
+            var post = new Post { Id = postRequest.Id };
+
+            if (string.IsNullOrEmpty(post.Id))
+            {
+                post.Id = Guid.NewGuid().ToString();
+            }
+            _posts.Add(post);
+            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
+            var locationUrl = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id);
+
+            var response = new PostResponse { Id = post.Id };
+            return Created(locationUrl, response);
         }
     }
 }
